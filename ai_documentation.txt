@@ -1,0 +1,2 @@
+AI assistance disclosure (edit to match the tools you actually used):
+ChatGPT (OpenAI GPT-6) assisted with organizing the Python package, implementing the data-cleaning and plotting code, writing tests, and drafting README documentation. The work was checked against the supplied HW2 Serena Williams data and with offline automated tests. The online retrieval for additional players was not verified in the execution environment.
