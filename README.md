@@ -7,7 +7,7 @@ This is a Python package based on my HW2 Serena Williams visualization. It reads
 Install from GitHub after pushing this repository:
 
 ```bash
-pip install git+https://github.com/YOUR_USERNAME/YOUR_REPO.git
+pip install git+https://github.com/UCB-stat159-f26/hw03-oscarcheng545-rgb.git
 ```
 
 Or install locally from the repository folder:
