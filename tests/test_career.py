@@ -48,7 +48,7 @@ def test_invalid_file_and_no_valid_matches():
         clean_career_js(javascript(match("20010910", "X", "Player", "22")), "1986-06-03")
 
 
-@pytest.mark.parametrize("name", ["serena williams", "Serena Williams", "SerenaWilliams"])
+@pytest.mark.parametrize("name", ["serena williams", "Serena Williams", "SerenaWilliams", "SERENA WILLIAMS"])
 def test_player_spelling(name):
     assert _player_slug(name) == "SerenaWilliams"
 
@@ -57,3 +57,23 @@ def test_missing_birthday():
     assert _get_birthday("Age: 40 (03-Jun-1986)").year == 1986
     with pytest.raises(ValueError, match="date of birth"):
         _get_birthday("No age on this profile")
+
+
+def test_reading_player_without_network(monkeypatch):
+    from tennis_career import career
+    js = javascript(match("20010910", "W", "Opponent", "23.5"))
+    def mock_read(url):
+        return js if url.endswith("Career.js") else "<p>Age: 40 (03-Jun-1986)</p>"
+    monkeypatch.setattr(career, "_read_url", mock_read)
+    data = career.get_career_matches("Rafael Nadal")
+    assert data.attrs["player"] == "Rafael Nadal"
+    assert data.iloc[0].result == "Win"
+
+
+def test_unknown_player_error(monkeypatch):
+    from tennis_career import career
+    def missing(_):
+        raise ValueError("not found")
+    monkeypatch.setattr(career, "_read_url", missing)
+    with pytest.raises(ValueError, match="not found"):
+        career.get_career_matches("GastonSanchez")

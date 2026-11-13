@@ -2,6 +2,7 @@
 import json
 import re
 from datetime import datetime
+from html import unescape
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -14,7 +15,8 @@ def _player_slug(name):
     if not isinstance(name, str) or not name.strip():
         raise ValueError("Please enter a player's first and last name.")
     parts = re.findall(r"[A-Za-z]+", name.strip())
-    slug = "".join(part[0].upper() + part[1:] for part in parts)
+    slug = "".join(part if part[1:].islower() and part[0].isupper() else part.title()
+                   for part in parts)
     if not slug or len(slug) < 3:
         raise ValueError("Please enter a valid player name.")
     return slug[0].upper() + slug[1:]
@@ -43,6 +45,8 @@ def _extract_matches(js):
 
 
 def _get_birthday(page):
+    page = unescape(re.sub(r"<[^>]*>", " ", page))
+    page = re.sub(r"\s+", " ", page)
     match = re.search(r"Age:\s*\d+\s*\((\d{2}-[A-Za-z]{3}-\d{4})\)", page)
     if not match:
         match = re.search(r"\((\d{2}-[A-Za-z]{3}-\d{4})\)", page)
