@@ -13,7 +13,8 @@ BASE = "https://www.tennisabstract.com"
 def _player_slug(name):
     if not isinstance(name, str) or not name.strip():
         raise ValueError("Please enter a player's first and last name.")
-    slug = re.sub(r"[^a-zA-Z]", "", name)
+    parts = re.findall(r"[A-Za-z]+", name.strip())
+    slug = "".join(part[0].upper() + part[1:] for part in parts)
     if not slug or len(slug) < 3:
         raise ValueError("Please enter a valid player name.")
     return slug[0].upper() + slug[1:]
