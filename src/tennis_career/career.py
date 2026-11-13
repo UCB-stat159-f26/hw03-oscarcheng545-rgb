@@ -44,15 +44,14 @@ def _extract_matches(js):
     return matches
 
 
-def _get_birthday(page):
-    page = unescape(re.sub(r"<[^>]*>", " ", page))
-    page = re.sub(r"\s+", " ", page)
-    match = re.search(r"Age:\s*\d+\s*\((\d{2}-[A-Za-z]{3}-\d{4})\)", page)
-    if not match:
-        match = re.search(r"\((\d{2}-[A-Za-z]{3}-\d{4})\)", page)
+
+def _get_birthday(js):
+    """Find a player's birthday in their JavaScript file."""
+    match = re.search(r"\bvar\s+dob\s*=\s*['\"]?(\d{8})", js)
     if not match:
         raise ValueError("Could not determine this player's date of birth.")
-    return datetime.strptime(match.group(1), "%d-%b-%Y")
+    return datetime.strptime(match.group(1), "%Y%m%d")
+
 
 
 def _opponent_age(row, played):
@@ -96,19 +95,14 @@ def clean_career_js(js, birthday):
     return data.sort_values("match_date").reset_index(drop=True)
 
 
+
 def get_career_matches(name):
-    """Download and clean career matches for a tennis player by name."""
+    """Download and clean career matches for a tennis player."""
     slug = _player_slug(name)
     js = _read_url(f"{BASE}/jsmatches/{slug}Career.js")
-    for prefix in ("player", "wplayer"):
-        try:
-            page = _read_url(f"{BASE}/cgi-bin/{prefix}-classic.cgi?p={slug}")
-            birthday = _get_birthday(page)
-            break
-        except ValueError:
-            continue
-    else:
-        raise ValueError(f"Could not find a birth date for '{name}'. Check the spelling.")
+    profile_js = _read_url(f"{BASE}/jsmatches/{slug}.js")
+    birthday = _get_birthday(profile_js)
     data = clean_career_js(js, birthday)
-    data.attrs["player"] = " ".join(re.findall(r"[A-Z][a-z]*", slug)) or name.title()
+    data.attrs["player"] = name.title()
     return data
+

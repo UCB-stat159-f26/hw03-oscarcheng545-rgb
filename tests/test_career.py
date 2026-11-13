@@ -1,5 +1,5 @@
 import pytest
-
+from datetime import datetime
 from tennis_career.career import (_extract_matches, _get_birthday,
                                   _player_slug, clean_career_js)
 
@@ -53,21 +53,31 @@ def test_player_spelling(name):
     assert _player_slug(name) == "SerenaWilliams"
 
 
+
 def test_missing_birthday():
-    assert _get_birthday("Age: 40 (03-Jun-1986)").year == 1986
+    js = "var dob=19810926;"
+    assert _get_birthday(js) == datetime(1981, 9, 26)
+
     with pytest.raises(ValueError, match="date of birth"):
-        _get_birthday("No age on this profile")
+        _get_birthday("No birthday information")
+
+
 
 
 def test_reading_player_without_network(monkeypatch):
     from tennis_career import career
     js = javascript(match("20010910", "W", "Opponent", "23.5"))
+
     def mock_read(url):
-        return js if url.endswith("Career.js") else "<p>Age: 40 (03-Jun-1986)</p>"
+        if url.endswith("Career.js"):
+            return js
+        return "var dob=19860603;"
+
     monkeypatch.setattr(career, "_read_url", mock_read)
     data = career.get_career_matches("Rafael Nadal")
     assert data.attrs["player"] == "Rafael Nadal"
     assert data.iloc[0].result == "Win"
+
 
 
 def test_unknown_player_error(monkeypatch):
