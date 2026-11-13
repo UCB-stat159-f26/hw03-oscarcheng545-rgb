@@ -15,8 +15,8 @@ def _player_slug(name):
     if not isinstance(name, str) or not name.strip():
         raise ValueError("Please enter a player's first and last name.")
     parts = re.findall(r"[A-Za-z]+", name.strip())
-    slug = "".join(part if part[1:].islower() and part[0].isupper() else part.title()
-                   for part in parts)
+    slug = "".join(part if re.fullmatch(r"(?:[A-Z][a-z]+)+", part)
+                   else part.title() for part in parts)
     if not slug or len(slug) < 3:
         raise ValueError("Please enter a valid player name.")
     return slug[0].upper() + slug[1:]
