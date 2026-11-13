@@ -1,16 +1,20 @@
 # Tennis Career Matches (HW3)
 
-This is a Python package based on my HW2 Serena Williams visualization. It reads a player's career matches from [Tennis Abstract](https://www.tennisabstract.com/), calculates the age difference between the player and each opponent, and makes a scatterplot. Wins are cyan and losses are purple, like my HW2 graph. I left out the annotations for HW3.
+## About
 
-## Install
+This is a Python package based on my HW2 Serena Williams visualization. It gets career match data from [Tennis Abstract](https://www.tennisabstract.com/) and makes a scatterplot comparing a player's age to the age difference between them and their opponents.
 
-Install from GitHub after pushing this repository:
+Wins are shown in blue and losses in purple, similar to my HW2 graph.
+
+## Installation
+
+Install the package from GitHub:
 
 ```bash
 pip install git+https://github.com/UCB-stat159-f26/hw03-oscarcheng545-rgb.git
 ```
 
-Or install locally from the repository folder:
+Or install it locally:
 
 ```bash
 pip install -e .
@@ -22,7 +26,7 @@ pip install -e .
 from tennis_career import get_career_matches, plot_career_matches
 import matplotlib.pyplot as plt
 
-serena = get_career_matches("serena williams")
+serena = get_career_matches("Serena Williams")
 print(serena.head())
 plot_career_matches(serena)
 plt.show()
@@ -30,29 +34,31 @@ plt.show()
 rafa = get_career_matches("Rafael Nadal")
 plot_career_matches(rafa)
 plt.show()
-
-# Raises ValueError with an explanation if the player cannot be found
-get_career_matches("GastonSanchez")
 ```
 
-`get_career_matches` returns a pandas DataFrame with the match date, opponent, player age, opponent age, age difference, and win/loss result. The plot function returns a Matplotlib Figure, so it can also be saved using `fig.savefig("career.png")`.
+The `get_career_matches()` function returns a pandas DataFrame with the match date, opponent, player age, opponent age, age difference, and match result.
+
+The `plot_career_matches()` function creates a scatterplot using that data.
+
+If an invalid player name is entered, the package raises an error.
 
 ## Testing
 
+To run the tests:
+
 ```bash
-pip install -e '.[test]'
-pytest -q
+pip install -e ".[test]"
+python -m pytest -v
 ```
 
-Tests use made-up career JavaScript samples rather than sending requests to Tennis Abstract. Both opponent birth dates (women's match data) and precomputed opponent ages (men's match data) are tested. I also checked the cleaning code against the Serena JS file from HW2: both produced 1,038 usable matches.
+I wrote tests using sample JavaScript data instead of making requests to the actual website. The tests check player names, missing data, and the different formats used for men's and women's matches.
 
-## Notes
-
-- The match file is downloaded when you call `get_career_matches`. An internet connection is needed for this function.
-- The player's birthday comes from the Tennis Abstract profile. If the birthday or career match data is unavailable, the function raises an error instead of making up ages.
-- Tennis Abstract can change its page or JavaScript format; the package currently follows the fields shown in the HW3 assignment.
-- Ages use days divided by 365.2425, the same method I used in HW2.
+All 13 tests passed. I also checked the package using Serena Williams and Rafael Nadal's actual match data.
 
 ## Reflection
 
-The biggest change from HW2 was making the code reusable. In HW2, the birthday and filenames were only for Serena Williams. For this assignment, I needed to pull the player's name from the function argument and also handle two different opponent-age formats. Splitting the downloading, data cleaning, and plotting into separate functions made it easier to test mistakes without rerunning the entire project. The tests also helped me catch a problem with names written in CamelCase.
+The main challenge in HW3 was changing my HW2 code so it could work for different players. In HW2, I only needed Serena Williams's data, but this time I had to get the information automatically based on the player's name.
+
+I also learned that the men's and women's match files store opponent ages differently, so I had to handle both formats. Another issue I ran into was finding the player's birthday in the JavaScript files. Testing the package with actual players helped me figure out what was wrong.
+
+Overall, this assignment helped me understand how Python packages work and why it's useful to split code into smaller functions and test them separately.
